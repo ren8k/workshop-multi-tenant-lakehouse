@@ -1,3 +1,5 @@
+Workshop: https://catalog.us-east-1.prod.workshops.aws/workshops/59965dc0-fff4-4c73-b08d-3b0401eeb0c8/en-US/300-lab-3/02-build-agent
+
 # Multi-tenant data lakehouse for SaaS workshop
 
 This is the source code for the Multi-tenant data lakehouse for SaaS workshop.
