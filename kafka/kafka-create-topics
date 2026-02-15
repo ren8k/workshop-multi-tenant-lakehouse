@@ -1,0 +1,8 @@
+#kafka create topics 
+
+sh kafka-topics.sh --bootstrap-server $BS --command-config client.properties --create --topic network 
+sh kafka-topics.sh --bootstrap-server $BS --command-config client.properties --create --topic auth 
+sh kafka-topics.sh --bootstrap-server $BS --command-config client.properties --create --topic endpoint
+sh kafka-topics.sh --bootstrap-server $BS --command-config client.properties --create --topic software
+sh kafka-topics.sh --bootstrap-server $BS --command-config client.properties --create --topic cve_info
+sh kafka-topics.sh --bootstrap-server $BS --command-config client.properties --create --topic threat_intelligence

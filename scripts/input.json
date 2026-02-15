@@ -1,0 +1,5 @@
+{
+    "ResourceArn": "arn:aws:s3tables:${REGION}:${AWS_ACCOUNT_ID}:bucket/*",
+    "WithFederation": true,
+    "RoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${ROLE_NAME}"
+  }

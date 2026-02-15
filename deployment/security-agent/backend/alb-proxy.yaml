@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFront proxy for ALB to enable HTTPS
+
+Parameters:
+  ALBDNSName:
+    Type: String
+    Description: ALB DNS Name
+    Default: securi-Appli-2p2lH9y49y8r-1338546171.us-west-2.elb.amazonaws.com
+
+Resources:
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: ALB HTTPS Proxy
+        Origins:
+          - Id: ALBOrigin
+            DomainName: !Ref ALBDNSName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: ALBOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            QueryString: true
+            Headers:
+              - Authorization
+              - Content-Type
+        PriceClass: PriceClass_100
+
+Outputs:
+  CloudFrontURL:
+    Description: CloudFront HTTPS URL for ALB
+    Value: !Sub "https://${CloudFrontDistribution.DomainName}"

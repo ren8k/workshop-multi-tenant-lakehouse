@@ -1,0 +1,255 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Multi-Tenant Security Analytics Backend
+
+Parameters:
+  UserPoolId:
+    Type: String
+    Default: us-west-2_PvqrBnqVr
+  IdentityPoolId:
+    Type: String
+    Default: us-west-2:4bc65936-b32f-4807-ba72-7353d6e96ff9
+  AWSRegion:
+    Type: String
+    Default: us-west-2
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 600
+    Environment:
+      Variables:
+        IDENTITY_POOL_ID: !Ref IdentityPoolId
+        USER_POOL_PROVIDER: !Sub "cognito-idp.${AWSRegion}.amazonaws.com/${UserPoolId}"
+        ATHENA_WORKGROUP: security-analytics
+        S3_RESULTS_BUCKET: security-analytics-results
+        LOG_LEVEL: INFO
+
+Resources:
+  # WebSocket API Gateway
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: security-analytics-websocket
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.action
+
+  WebSocketStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref WebSocketApi
+      StageName: prod
+      AutoDeploy: true
+
+  WebSocketHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: websocket_handler.lambda_handler
+      Policies:
+        - CloudWatchLogsFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - execute-api:ManageConnections
+              Resource: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-identity:GetId
+                - cognito-identity:GetCredentialsForIdentity
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+                - bedrock:Get*
+                - bedrock:List*
+                - aws-marketplace:ViewSubscriptions
+                - aws-marketplace:Subscribe
+                - aws-marketplace:Unsubscribe
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryResults
+                - athena:GetQueryExecution
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: "arn:aws:s3:::security-analytics-results/*"
+
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: $connect
+      Target: !Sub "integrations/${ConnectIntegration}"
+
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: $disconnect
+      Target: !Sub "integrations/${DisconnectIntegration}"
+
+  QueryRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: query
+      Target: !Sub "integrations/${QueryIntegration}"
+
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketHandlerFunction.Arn}/invocations"
+
+  DisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketHandlerFunction.Arn}/invocations"
+
+  QueryIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketHandlerFunction.Arn}/invocations"
+
+  WebSocketPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WebSocketHandlerFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*"
+
+  # Cognito Lambda Trigger
+  CognitoTriggerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: cognito_trigger.lambda_handler
+      Policies:
+        - CloudWatchLogsFullAccess
+
+  # Permission for Cognito to invoke the trigger
+  CognitoTriggerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref CognitoTriggerFunction
+      Action: lambda:InvokeFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
+
+
+
+  # Simple Agent Lambda
+  SimpleAgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: simple_agent.lambda_handler
+      Policies:
+        - CloudWatchLogsFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+                - bedrock:Converse
+                - bedrock:ConverseStream
+                - bedrock:RenderPrompt
+                - bedrock:CreateInvocation
+                - bedrock:CreateSession
+                - bedrock:ListInvocations
+                - bedrock:ListSessions
+                - bedrock:GetSession
+              Resource: "*"
+
+  # Main Query Handler Lambda
+  QueryHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: query_handler.lambda_handler
+      MemorySize: 5120
+      Environment:
+        Variables:
+          IDENTITY_POOL_ID: !Ref IdentityPoolId
+          USER_POOL_PROVIDER: !Sub "cognito-idp.${AWSRegion}.amazonaws.com/${UserPoolId}"
+          ATHENA_WORKGROUP: security-analytics
+          S3_RESULTS_BUCKET: security-analytics-results
+          LOG_LEVEL: INFO
+      Policies:
+        - CloudWatchLogsFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-identity:GetId
+                - cognito-identity:GetCredentialsForIdentity
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+                - bedrock:Converse
+                - bedrock:ConverseStream
+                - bedrock:RenderPrompt
+                - bedrock:CreateInvocation
+                - bedrock:CreateSession
+                - bedrock:ListInvocations
+                - bedrock:ListSessions
+                - bedrock:GetSession
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - athena:StartQueryExecution
+                - athena:GetQueryResults
+                - athena:GetQueryExecution
+              Resource: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: "arn:aws:s3:::security-analytics-results/*"
+
+
+
+Outputs:
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPoolId
+
+  ClientId:
+    Description: Cognito User Pool Client ID
+    Value: 1sslfac305hhg35rbvdj1vdu8f
+
+  IdentityPoolId:
+    Description: Cognito Identity Pool ID
+    Value: !Ref IdentityPoolId
+
+  CognitoTriggerFunctionArn:
+    Description: Cognito Trigger Function ARN
+    Value: !GetAtt CognitoTriggerFunction.Arn
+
+  QueryHandlerFunctionArn:
+    Description: Query Handler Function ARN
+    Value: !GetAtt QueryHandlerFunction.Arn
+
+  WebSocketUrl:
+    Description: WebSocket API URL
+    Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/prod"

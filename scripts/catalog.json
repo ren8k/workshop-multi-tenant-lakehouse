@@ -1,0 +1,12 @@
+{
+    "Name": "s3tablescatalog",
+    "CatalogInput": {
+      "FederatedCatalog": {
+        "Identifier": "arn:aws:s3tables:${REGION}:${AWS_ACCOUNT_ID}:bucket/*",
+        "ConnectionName": "aws:s3tables"
+      },
+      "CreateDatabaseDefaultPermissions": [],
+      "CreateTableDefaultPermissions": [],
+      "AllowFullTableExternalDataAccess": "True"
+    }
+  }

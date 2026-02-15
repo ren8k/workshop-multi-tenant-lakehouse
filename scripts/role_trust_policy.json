@@ -1,0 +1,23 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "LakeFormationDataAccessPolicy",
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "lakeformation.amazonaws.com"
+        },
+        "Action": [
+          "sts:AssumeRole",
+          "sts:SetContext",
+          "sts:SetSourceIdentity"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:SourceAccount": "${AWS_ACCOUNT_ID}"
+          }
+        }
+      }
+    ]
+  }
+  

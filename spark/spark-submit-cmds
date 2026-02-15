@@ -1,0 +1,93 @@
+#Spark Submit Commands
+
+#networkevents
+spark-submit \
+    --deploy-mode client \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-avro_2.12:3.5.0,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1,software.amazon.s3tables:s3-tables-catalog-for-iceberg-runtime:0.1.4 \
+    --jars /home/hadoop/aws-msk-iam-auth-2.3.0-all.jar \
+    spark-network.py \
+    --catalog iceberg-workshop \
+    --table networkevents \
+    --bootstrap-servers "boot-x0t.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-syn.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-xeg.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098" \
+    --topic network \
+    --checkpoint-location "s3://anuawas/tmp/checkpoint/networkEvents/" \
+    --warehouse-location "arn:aws:s3tables:us-east-1:992294893844:bucket/iceberg-workshop" \
+    --tenant-ids "12345,12346"
+    
+
+#auth
+spark-submit \
+    --deploy-mode client \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-avro_2.12:3.5.0,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1,software.amazon.s3tables:s3-tables-catalog-for-iceberg-runtime:0.1.4 \
+    --jars /home/hadoop/aws-msk-iam-auth-2.3.0-all.jar \
+    spark-auth.py \
+    --catalog iceberg-workshop \
+    --table authenticationlogs_v1 \
+    --bootstrap-servers "boot-x0t.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-syn.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-xeg.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098" \
+    --topic auth \
+    --checkpoint-location "s3://anuawas/tmp/checkpoint/auth/" \
+    --warehouse-location "arn:aws:s3tables:us-east-1:992294893844:bucket/iceberg-workshop" \
+    --tenant-ids "12345,12346"
+    
+
+#endpoint
+spark-submit \
+    --deploy-mode client \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-avro_2.12:3.5.0,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1,software.amazon.s3tables:s3-tables-catalog-for-iceberg-runtime:0.1.4 \
+    --jars /home/hadoop/aws-msk-iam-auth-2.3.0-all.jar \
+    spark-endpoint.py \
+    --catalog iceberg-workshop \
+    --table endpoint \
+    --bootstrap-servers "boot-x0t.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-syn.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-xeg.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098" \
+    --topic endpoint \
+    --checkpoint-location "s3://anuawas/tmp/checkpoint/endpoint/" \
+    --warehouse-location "arn:aws:s3tables:us-east-1:992294893844:bucket/iceberg-workshop" \
+    --tenant-ids "12345,12346"
+
+
+
+#installedsoftware
+spark-submit \
+    --deploy-mode client \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-avro_2.12:3.5.0,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1,software.amazon.s3tables:s3-tables-catalog-for-iceberg-runtime:0.1.4 \
+    --jars /home/hadoop/aws-msk-iam-auth-2.3.0-all.jar \
+    spark-software.py \
+    --catalog iceberg-workshop \
+    --table installedsoftware \
+    --bootstrap-servers "boot-x0t.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-syn.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-xeg.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098" \
+    --topic software \
+    --checkpoint-location "s3://anuawas/tmp/checkpoint/software/" \
+    --warehouse-location "arn:aws:s3tables:us-east-1:992294893844:bucket/iceberg-workshop" \
+    --tenant-ids "12345,12346"
+
+
+#cve_info
+
+spark-submit \
+    --deploy-mode client \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-avro_2.12:3.5.0,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1,software.amazon.s3tables:s3-tables-catalog-for-iceberg-runtime:0.1.4 \
+    --jars /home/hadoop/aws-msk-iam-auth-2.3.0-all.jar \
+    spark-cve.py \
+    --catalog iceberg-workshop \
+    --database threat \
+    --table cveinfo \
+    --bootstrap-servers "boot-x0t.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-syn.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-xeg.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098" \
+    --topic cve_info \
+    --checkpoint-location "s3://anuawas/tmp/checkpoint/cveinfo/" \
+    --warehouse-location "arn:aws:s3tables:us-east-1:992294893844:bucket/iceberg-workshop" 
+
+
+
+#threat_intelligence
+spark-submit \
+    --deploy-mode client \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,org.apache.spark:spark-avro_2.12:3.5.0,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.1,software.amazon.s3tables:s3-tables-catalog-for-iceberg-runtime:0.1.4 \
+    --jars /home/hadoop/aws-msk-iam-auth-2.3.0-all.jar \
+    spark-threat-intelligence.py \
+    --catalog iceberg-workshop \
+    --database threat \
+    --table threatintelligence \
+    --bootstrap-servers "boot-x0t.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-syn.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098,boot-xeg.workshop.5hknsf.c17.kafka.us-east-1.amazonaws.com:9098" \
+    --topic threat_intelligence \
+    --checkpoint-location "s3://anuawas/tmp/checkpoint/threat_intelligence/" \
+    --warehouse-location "arn:aws:s3tables:us-east-1:992294893844:bucket/iceberg-workshop" 

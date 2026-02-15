@@ -1,0 +1,22 @@
+# Multi-Tenant Security Analytics Frontend Deployment
+# Generated on: Tue Sep  9 11:05:12 PDT 2025
+
+STACK_NAME=security-analytics-frontend
+S3_BUCKET=sec-analytics-fe-211125397700
+CLOUDFRONT_URL=https://d1lwcwshv7szxm.cloudfront.net
+DISTRIBUTION_ID=E4UV2C2XTJ1GE
+AWS_REGION=us-west-2
+
+# Frontend URL
+FRONTEND_URL=https://d1lwcwshv7szxm.cloudfront.net
+
+# Backend Integration
+ALB_URL=http://securi-Appli-2p2lH9y49y8r-1338546171.us-west-2.elb.amazonaws.com
+API_GATEWAY_URL=http://securi-Appli-2p2lH9y49y8r-1338546171.us-west-2.elb.amazonaws.com
+COGNITO_USER_POOL_ID=us-west-2_PvqrBnqVr
+COGNITO_CLIENT_ID=1sslfac305hhg35rbvdj1vdu8f
+COGNITO_IDENTITY_POOL_ID=us-west-2:4bc65936-b32f-4807-ba72-7353d6e96ff9
+
+# To update the frontend:
+# 1. Update backend deployment if needed
+# 2. ./deploy-frontend.sh (will auto-update .env from backend deployment_info.txt)

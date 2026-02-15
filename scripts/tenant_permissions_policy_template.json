@@ -1,0 +1,55 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "glue:GetDatabase",
+                "glue:GetDatabases",
+                "glue:GetTable",
+                "glue:GetTables",
+                "glue:GetPartition",
+                "glue:GetPartitions",
+                "glue:BatchGetPartition",
+                "glue:CreateDatabase",
+                "glue:CreateTable",
+                "glue:UpdateDatabase",
+                "glue:UpdateTable",
+                "glue:DeleteDatabase",
+                "glue:DeleteTable"
+            ],
+            "Resource": [
+                "arn:aws:glue:{{REGION}}:{{AWS_ACCOUNT_ID}}:catalog",
+                "arn:aws:glue:{{REGION}}:{{AWS_ACCOUNT_ID}}:database/{{TENANT}}_data",
+                "arn:aws:glue:{{REGION}}:{{AWS_ACCOUNT_ID}}:database/{{SHARED_DATABASE}}",
+                "arn:aws:glue:{{REGION}}:{{AWS_ACCOUNT_ID}}:table/{{TENANT}}_data/*",
+                "arn:aws:glue:{{REGION}}:{{AWS_ACCOUNT_ID}}:table/{{SHARED_DATABASE}}/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3tables:GetTable",
+                "s3tables:GetTableData",
+                "s3tables:ListTables",
+                "s3tables:GetNamespace",
+                "s3tables:ListNamespaces",
+                "s3tables:GetTableBucket",
+                "s3tables:ListTableBuckets"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lakeformation:GetDataAccess",
+                "lakeformation:GrantPermissions",
+                "lakeformation:RevokePermissions",
+                "lakeformation:BatchGrantPermissions",
+                "lakeformation:BatchRevokePermissions",
+                "lakeformation:ListPermissions"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

@@ -1,0 +1,91 @@
+{
+  "tables": [
+    {
+      "name": "network_events",
+      "metadata": {
+        "iceberg": {
+          "schema": {
+            "fields": [
+              {"name": "event_id", "type": "long", "required": true},
+              {"name": "tenant_id", "type": "string", "required": true},
+              {"name": "timestamp", "type": "timestamp", "required": true},
+              {"name": "source_ip", "type": "string"},
+              {"name": "destination_ip", "type": "string"},
+              {"name": "source_port", "type": "int"},
+              {"name": "destination_port", "type": "int"},
+              {"name": "protocol", "type": "string"},
+              {"name": "bytes_sent", "type": "long"},
+              {"name": "bytes_received", "type": "long"},
+              {"name": "action", "type": "string"},
+              {"name": "threat_level", "type": "string"},
+              {"name": "region", "type": "string"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "authentication_logs",
+      "metadata": {
+        "iceberg": {
+          "schema": {
+            "fields": [
+              {"name": "auth_id", "type": "long", "required": true},
+              {"name": "tenant_id", "type": "string", "required": true},
+              {"name": "timestamp", "type": "timestamp", "required": true},
+              {"name": "user_id", "type": "string"},
+              {"name": "source_ip", "type": "string"},
+              {"name": "authentication_type", "type": "string"},
+              {"name": "status", "type": "string"},
+              {"name": "failure_reason", "type": "string"},
+              {"name": "location", "type": "string"},
+              {"name": "country_code", "type": "string"},
+              {"name": "device_type", "type": "string"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "endpoints",
+      "metadata": {
+        "iceberg": {
+          "schema": {
+            "fields": [
+              {"name": "endpoint_id", "type": "long", "required": true},
+              {"name": "tenant_id", "type": "string", "required": true},
+              {"name": "hostname", "type": "string"},
+              {"name": "ip_address", "type": "string"},
+              {"name": "operating_system", "type": "string"},
+              {"name": "os_version", "type": "string"},
+              {"name": "last_patch_date", "type": "timestamp"},
+              {"name": "antivirus_status", "type": "string"},
+              {"name": "risk_score", "type": "decimal(3,2)"},
+              {"name": "department", "type": "string"},
+              {"name": "region", "type": "string"},
+              {"name": "country_code", "type": "string"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "installed_software",
+      "metadata": {
+        "iceberg": {
+          "schema": {
+            "fields": [
+              {"name": "software_instance_id", "type": "long", "required": true},
+              {"name": "endpoint_id", "type": "long"},
+              {"name": "tenant_id", "type": "string", "required": true},
+              {"name": "software_name", "type": "string"},
+              {"name": "version", "type": "string"},
+              {"name": "install_date", "type": "timestamp"},
+              {"name": "is_critical", "type": "boolean"}
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

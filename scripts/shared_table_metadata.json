@@ -1,0 +1,45 @@
+{
+  "tables": [
+    {
+      "name": "threat_intelligence",
+      "metadata": {
+        "iceberg": {
+          "schema": {
+            "fields": [
+              {"name": "threat_id", "type": "long", "required": true},
+              {"name": "ip_address", "type": "string"},
+              {"name": "domain_name", "type": "string"},
+              {"name": "threat_type", "type": "string"},
+              {"name": "confidence_score", "type": "decimal(3,2)"},
+              {"name": "first_seen_date", "type": "timestamp"},
+              {"name": "last_seen_date", "type": "timestamp"},
+              {"name": "malware_family", "type": "string"},
+              {"name": "source", "type": "string"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "cve_info",
+      "metadata": {
+        "iceberg": {
+          "schema": {
+            "fields": [
+              {"name": "cve_id", "type": "string", "required": true},
+              {"name": "description", "type": "string"},
+              {"name": "severity", "type": "string"},
+              {"name": "cvss_score", "type": "decimal(3,1)"},
+              {"name": "published_date", "type": "timestamp"},
+              {"name": "last_modified_date", "type": "timestamp"},
+              {"name": "affected_software_name", "type": "string"},
+              {"name": "affected_version_range", "type": "string"},
+              {"name": "remediation_info", "type": "string"}
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
+$KAFKA_ROOT/bin/kafka-topics.sh --bootstrap-server $BOOTSTRAP_SERVERS --list --command-config /home/ec2-user/client_sasl.properties
